@@ -34,6 +34,6 @@ app.delete('/parkings/:id', (req,res) => {
     res.status(200).json(parkings)
 })
 
-app.listen(5000, () => {
+app.listen(80, () => {
     console.log("Serveur à l'écoute")
 })
