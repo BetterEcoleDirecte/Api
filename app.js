@@ -2,7 +2,20 @@ const express = require('express')
 const app = express()
 const parkings = require('./parkings.json')
 
+const axios = require('axios')
+
 app.use(express.json())
+
+app.get('/', (req, res) => {
+    
+    axios.get('https://api.github.com/repos/BetterEcoleDirecte/Api/commits/main').then((ress) => {
+        var latestCommitDate = ress.data.commit.author.date
+        res.status(200).json(JSON.parse('{ "code": "200" , "message": "Api is online" , "lastUpdate": "'  + latestCommitDate +'" }'))
+    }).catch((err) => { 
+        res.status(200).json(JSON.parse('{ "code": "200" , "message": "Api is online" , "lastUpdate": "Error" }'))
+        throw err;
+    })
+})
 
 app.get('/parkings', (req,res) => {
     res.status(200).json(parkings)
@@ -34,6 +47,6 @@ app.delete('/parkings/:id', (req,res) => {
     res.status(200).json(parkings)
 })
 
-app.listen(80, () => {
+app.listen(process.env.PORT || 80, () => {
     console.log("Serveur à l'écoute")
 })
