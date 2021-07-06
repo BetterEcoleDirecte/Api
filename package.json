@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "npm install && node app.js",
+    "start": "npm install && npm fund && node app.js",
     "dev": "nodemon ./app.js localhost 80"
   },
   "author": "TheBigBoss33",
