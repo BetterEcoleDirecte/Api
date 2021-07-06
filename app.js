@@ -5,7 +5,9 @@ const parkings = require('./parkings.json')
 const axios = require('axios')
 
 app.use(express.json())
-
+app.use(express.urlencoded({
+    extended: true
+}))
 app.get('/', (req, res) => {
     
     axios.get('https://api.github.com/repos/BetterEcoleDirecte/Api/commits/main').then((ress) => {
@@ -15,6 +17,41 @@ app.get('/', (req, res) => {
         res.status(200).json(JSON.parse('{ "code": "200" , "message": "Api is online" , "lastUpdate": "Error" }'))
         throw err;
     })
+})
+
+app.post('/auth/login', (req, res) => {
+    if (req.headers['content-type'] == "multipart/form-data" || req.headers['content-type'] == "application/x-www-form-urlencoded" || req.headers['content-type'] == "application/json") {
+        if (req.body.username && req.body.password) {
+            var username = req.body.username
+            var password = req.body.password
+
+            var data = 'data= {'+
+            '"identifiant": "' + username + '" , "motdepasse": "' + password + '"}';
+            
+            axios.post(
+                "https://api.ecoledirecte.com/v3/login.awp",
+                data
+            ).then((apiRes) => {
+                
+                if (apiRes.data.code == 200) {
+                    var accountData = JSON.stringify(apiRes.data.data.accounts[0])
+                    res.status(200).json(JSON.parse('{ "code": "200","message": "", "token": "' + apiRes.data.token + '", "account":' + accountData + '}'))
+                }else{
+                    console.log(JSON.stringify(apiRes.data));
+                    res.status(401).json(JSON.parse('{ "code": "401" , "message": "' + apiRes.data.message + '"}'))
+                }
+
+            }).catch((e) => {
+                res.status(500).json(JSON.parse('{ "code": "500" , "message": "Internal server error : ' + e + '"}'))
+            });
+
+        }else{
+            res.status(400).json(JSON.parse('{ "code": "400" , "message": "Bad input Need username and password params"}'))
+        }
+    } else {
+        res.status(400).json(JSON.parse('{ "code": "400" , "message": "Bad headers"}'))
+    }
+    
 })
 
 app.get('/parkings', (req,res) => {
@@ -49,4 +86,8 @@ app.delete('/parkings/:id', (req,res) => {
 
 app.listen(process.env.PORT || 80, () => {
     console.log("Serveur à l'écoute")
+})
+
+app.get('*', function(req, res){
+    res.status(404).json(JSON.parse('{ "code": 404,"message": "Not Found"  }'));
 })
