@@ -84,7 +84,7 @@ app.delete('/parkings/:id', (req,res) => {
     res.status(200).json(parkings)
 })
 
-app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT || 1377, () => {
     console.log("Serveur à l'écoute")
 })
 
